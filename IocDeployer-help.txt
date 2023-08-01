@@ -1,0 +1,58 @@
+IocDeployer
+===========
+
+Usage:
+=====================================================
+./IocDeployer.py [-h] [-v] [-p PATH] subcommand IOC Apps [--options]
+
+options:
+  -h, --help            show this help message and exit
+  -p PATH, --path PATH  Absolute path to working directory, default to current working directory.
+  -v, --verbose         Show details.
+
+subcommand: create, make, remake.
+1)
+------------------------------------------------------
+./IocDeployer.py [-h] [-v] [-p PATH] create IOC Apps [--options]
+
+positional arguments:
+  IOC           IOC name.
+  Apps          App name list in IOC.
+
+options:
+  --pva         Add PVA module.
+  --putlog      Add caPutLog module.
+  --Status-ioc  Add devIocStats module and set IOC status monitor.
+  --Status-os   Add devIocStats module and set OS status monitor.
+  --autosave    Add autosave module.
+
+2)
+------------------------------------------------------
+./IocDeployer.py [-h] [-v] [-p PATH] make IOC
+
+positional arguments:
+  IOC         IOC name.
+
+3)
+------------------------------------------------------
+./IocDeployer.py [-h] [-v] [-p PATH] remake IOC
+
+positional arguments:
+  IOC         IOC name.
+
+
+示例步骤:
+======================================================
+1. 修改ER_Settings.py文件, 使文件内属性与本机环境一致
+2. 执行命令, 在用户home目录处创建项目, 生成名为test, App名为OS_status的IOC, 并指定安装PVA, caPutLog, Status-os, autosave模块:
+    ./IocDeployer.py -p ~/ create test OS_status --pva --putlog --status-os --autosave
+3. 将IOC需要的.db或.substitutions文件添加至~/ER/IOCs/test/OS_statusApp/Db目录下
+4. 适当修改~/ER/IOCs/test/iocBoot/iocOS_status/st.cmd文件,使其能够正确加载需要的.db文件
+5. 编译指定路径项目内的指定IOC:
+    ./IocDeployer.py -p ~/ make test
+6. .db文件修改后重编译:
+    ./IocDeployer.py -p ~/ remake test
+    
+    
+    
+    
