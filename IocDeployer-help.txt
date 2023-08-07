@@ -2,49 +2,61 @@ IocDeployer
 ===========
 
 Usage:
-=====================================================
-./IocDeployer.py [-h] [-v] [-p PATH] subcommand IOC Apps [--options]
+========================================================================
+./IocDeployer.py [-h] [-p PATH] [-v] {create,make,remake} ...
 
 options:
   -h, --help            show this help message and exit
-  -p PATH, --path PATH  Absolute path to working directory, default to current working directory.
-  -v, --verbose         Show details.
+  -p PATH, --path PATH  设置工作路径的绝对路径, 默认为当前工作路径.
+  -v, --verbose         显示调试信息.
 
-subcommand: create, make, remake.
+positional arguments:
+  {create,make,remake}  子解析器命令. 运行以下命令获取详细帮助: "python IocDeployer.py create/make/remake -h".
+    create              创建IOC及相关文件.
+    make                IOC编译.
+    remake              IOC重新编译.
+
 1)
 ------------------------------------------------------
 ./IocDeployer.py [-h] [-v] [-p PATH] create IOC Apps [--options]
 
 positional arguments:
-  IOC           IOC name.
-  Apps          App name list in IOC.
+  IOC           IOC项目名称.
+  Apps          IOC内App名称列表.
 
 options:
-  --pva         Add PVA module.
-  --putlog      Add caPutLog module.
-  --Status-ioc  Add devIocStats module and set IOC status monitor.
-  --Status-os   Add devIocStats module and set OS status monitor.
-  --autosave    Add autosave module.
+  -h, --help    show this help message and exit
+  --pva         添加PVA模块.
+  --putlog      添加caPutLog模块.
+  --status-ioc  添加devIocStats模块的IOC状态监视功能.
+  --status-os   添加devIocStats模块的OS状态监视功能.
+  --autosave    添加autosave模块.
 
 2)
 ------------------------------------------------------
-./IocDeployer.py [-h] [-v] [-p PATH] make IOC
+./IocDeployer.py [-h] [-v] [-p PATH] make [IOC ...]
 
 positional arguments:
-  IOC         IOC name.
+  IOC         IOC名称列表, 不输入任何参数时默认对项目中的全部IOC进行操作.
+
+options:
+  -h, --help  show this help message and exit
 
 3)
 ------------------------------------------------------
-./IocDeployer.py [-h] [-v] [-p PATH] remake IOC
+./IocDeployer.py [-h] [-v] [-p PATH] remake [IOC ...]
 
 positional arguments:
-  IOC         IOC name.
+  IOC         IOC名称列表, 不输入任何参数时默认对项目中的全部IOC进行操作.
+
+options:
+  -h, --help  show this help message and exit
 
 
 示例步骤:
-======================================================
+========================================================================
 1. 修改ER_Settings.py文件, 使文件内属性与本机环境一致
-2. 执行命令, 在用户home目录处创建项目, 生成名为test, App名为OS_status的IOC, 并指定安装PVA, caPutLog, Status-os, autosave模块:
+2. 执行命令, 指定在用户home目录处创建项目, 生成名为test, App名为OS_status的IOC, 并指定安装PVA, caPutLog, status-os, autosave模块:
     ./IocDeployer.py -p ~/ create test OS_status --pva --putlog --status-os --autosave
 3. 将IOC需要的.db或.substitutions文件添加至~/ER/IOCs/test/OS_statusApp/Db目录下
 4. 适当修改~/ER/IOCs/test/iocBoot/iocOS_status/st.cmd文件,使其能够正确加载需要的.db文件
@@ -53,6 +65,8 @@ positional arguments:
 6. .db文件修改后重编译:
     ./IocDeployer.py -p ~/ remake test
     
-    
-    
+注:
+========================================================================
+1. 多次执行示例步骤以在同一个项目目录内创建多个IOC
+2. IOC名称不可以重复，并且IOC内APP的名称也不建议重复(否则可能导致iocstatus模块产生重名PV)
     

@@ -2,16 +2,23 @@ import logging
 import os
 import getpass
 
-logger = logging.getLogger(':IOC Deployer')  # logging设置
-logging.basicConfig(level=logging.INFO)
+# logging设置
+logger = logging.getLogger(':IOC Deployer')
+logging.basicConfig(level=logging.ERROR)
 
-DB_FILE_SUFFIX = ('.db', '.substitutions')  # db文件后缀
+# 默认工作路径
+DEFAULT_WORKING_DIR = os.getcwd()
 
-DEFAULT_WORKING_DIR = os.getcwd()  # 默认工作路径
-
+# 默认目录名称
 PROJECT_DIR_NAME = 'ER'  # TOP目录名称
-IOC_DIR_NAME = 'IOCs'  # IOC目录名称
-DOC_DIR_NAME = 'doc'  # 日志文件存放目录名称
+IOC_DIR_NAME = 'IOC'  # IOC目录名称
+SETTINGS_DIR_NAME = 'settings'  # 配置文件存放目录名称
+LOG_DIR_NAME = 'log'  # 日志文件存放目录名称
+OPI_DIR_NAME = 'opi'  # opi文件存放目录名称
+SCRIPTS_DIR_NAME = 'scripts'  # scripts文件存放目录名称
+
+# db文件后缀
+DB_FILE_SUFFIX = ('.db', '.substitutions')
 
 # Phoebus
 PHOEBUS_PATH = '/home/zhu/Phoebus/product-sns-4.6.10-SNAPSHOT'
@@ -25,8 +32,8 @@ MODULE_PATH = {
 }
 
 
-##############################
 # 文本替换设置
+##############################
 def APP_SRC_MAKEFILE_HOOK(App_name):
     return f'#{App_name}_LIBS += xxx\n'
 
