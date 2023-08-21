@@ -1,8 +1,7 @@
 import os
-import shutil
+import configparser
 
-from ER_Settings import logger
-from ER_Settings import DB_FILE_SUFFIX, PROJECT_DIR_NAME, IOC_DIR_NAME
+from ER_Settings import logger, CONFIG_FILE_NAME
 
 
 def _get_top():
@@ -17,9 +16,11 @@ def try_makedirs(d):
     try:
         os.makedirs(d)
     except FileExistsError:
-        logger.info(f'\ttry_makedirs("{d}") -> FileExistsError Exception.')
+        logger.debug(f'\ttry_makedirs("{d}") -> FileExistsError Exception.')
+        return False
     else:
-        logger.info(f'\ttry_makedirs("{d}") -> Success.')
+        logger.debug(f'\ttry_makedirs("{d}") -> Success.')
+        return True
 
 
 # 读取文件，根据给定的字符串匹配位置，添加列表里的字符串至文件中匹配的位置处，返回添加后的文件字符串列表
@@ -42,23 +43,48 @@ def add_lines(file_path, idx_str, str_list: list):
     return new_file
 
 
-# 根据Db文件夹中的文件更新Makefile，从template中复制Makefile确保此函数可以多次执行
-def App_Db_updater(working_dir, IOC_name):
-    template_path = os.path.join(_get_top(), 'template', 'IOC', 'App', 'Db', 'Makefile')
-    ioc_path = os.path.join(working_dir, PROJECT_DIR_NAME, IOC_DIR_NAME, IOC_name)
-    for app_dir in os.listdir(ioc_path):
-        if app_dir.endswith('App'):
-            file_path = os.path.join(ioc_path, app_dir, 'Db')
-            shutil.copy(template_path, file_path)
-            logger.info(f'\tUpdating "{os.path.join(file_path, "Makefile")}".')
-            db_list = []
-            for f in os.listdir(file_path):
-                if f.endswith(DB_FILE_SUFFIX):
-                    db_list.append(f'DB += ' + f + '\n')
-            if db_list:
-                file_path = os.path.join(file_path, 'Makefile')
-                add_lines(file_path, f'#DB += xxx.db\n', db_list)
+def config_check(project_dir_path, section, key=None, value_to_compare=None):
+    config_file_path = os.path.join(project_dir_path, CONFIG_FILE_NAME)
+    if os.path.exists(config_file_path):
+        conf = configparser.ConfigParser()
+        conf.read(config_file_path)
+        if section in conf and key is None:
+            logger.debug(f'\tConfig中存在section {section}.')
+            return True
+        elif section not in conf:
+            logger.debug(f'\tConfig中不存在section {section}.')
+            return False
+        if conf.get(section, key, fallback=None) == value_to_compare:
+            logger.debug(f'\tConfig["{section}"]["{key}"] == {value_to_compare}.')
+            return True
+    else:
+        logger.debug(f'\t配置文件不存在 或 Config["{section}"]["{key}"]!={value_to_compare}.')
+        return False
+
+
+def config_set(project_dir_path, section, key, value_to_set):
+    config_file_path = os.path.join(project_dir_path, CONFIG_FILE_NAME)
+    if os.path.exists(config_file_path):
+        conf = configparser.ConfigParser()
+        conf.read(config_file_path)
+        try:
+            conf.add_section(section)
+        except configparser.DuplicateSectionError:
+            pass
+        conf.set(section, key, value_to_set)
+        with open(config_file_path, 'w') as f:
+            conf.write(f)
+        logger.debug(f'\t配置文件更新成功: Config["{section}"]["{key}"]={CONFIG_FILE_NAME}.')
+    else:
+        logger.debug(f'\t配置文件不存在, 已创建新配置文件.')
+        config = configparser.ConfigParser()
+        config[section] = {
+            key: value_to_set,
+        }
+        with open(config_file_path, 'w') as f:
+            config.write(f)
 
 
 if __name__ == '__main__':
-    App_Db_updater('/home/zhu/Project/EPICS', 'test')
+    # App_Db_updater('/home/zhu/Project/EPICS', 'test')
+    pass

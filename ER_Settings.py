@@ -3,8 +3,11 @@ import os
 import getpass
 
 # logging设置
-logger = logging.getLogger(':IOC Deployer')
-logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger('')
+logging.basicConfig(level=logging.INFO, format='%(name)s - %(levelname)s - %(message)s - %(funcName)s')
+
+#
+CONFIG_FILE_NAME = 'config.ini'
 
 # 默认工作路径
 DEFAULT_WORKING_DIR = os.getcwd()

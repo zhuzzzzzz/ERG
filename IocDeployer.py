@@ -7,9 +7,9 @@ import pathlib
 import logging
 
 from ER_Settings import logger, DEFAULT_WORKING_DIR, PROJECT_DIR_NAME, IOC_DIR_NAME
-from ER_Funcs import try_makedirs
-from Project_Generator import ioc_generator, ioc_file_manager, ioc_make, ioc_remake, project_scripts_generator, \
-    project_file_manager
+from ER_Funcs import try_makedirs, config_set
+from Project_Generator import ioc_generator
+from Project_Manager import ioc_file_manager, ioc_make, ioc_remake
 from IocModule_manager import add_pva, add_autosave, add_caPutLog, add_devIocStats
 
 
@@ -19,25 +19,25 @@ def create(args):
     IOC_name = args.IOC  # IOC名称
     App_name_list = args.Apps  # IOC内App名称
 
-    run_flag = True
-    if os.path.exists(os.path.join(working_dir, PROJECT_DIR_NAME, IOC_DIR_NAME, IOC_name)):
-        ans = input(f'项目内已存在相同名称IOC目录, 是否重新生成IOC?|[y/n]?\n')
+    run_flag = False
+    if not ioc_generator(working_dir, IOC_name, App_name_list):
+        ans = input(f'项目内已存在相同名称IOC目录, 是否将其移除并重新生成?|[y/n]?\n')
         while True:
             if ans.lower() == 'yes' or ans.lower() == 'y':
-                run_flag = True
+                logger.info(f'\t移除IOC目录: {IOC_name}/.')
                 shutil.rmtree(os.path.join(working_dir, PROJECT_DIR_NAME, IOC_DIR_NAME, IOC_name))
+                ioc_generator(working_dir, IOC_name, App_name_list)
+                run_flag = True
                 break
             elif ans.lower() == 'no' or ans.lower() == 'n':
-                run_flag = False
                 break
             else:
                 ans = input(f'输入无效, 请重新输入.|[y/n]?\n')
+    else:
+        run_flag = True
 
     if run_flag:
-        ioc_generator(working_dir, IOC_name, App_name_list)
         ioc_file_manager(working_dir, IOC_name, App_name_list)
-        project_file_manager(working_dir)
-        project_scripts_generator(working_dir)
         if args.pva:
             for app in App_name_list:
                 add_pva(working_dir, IOC_name, app)
@@ -63,15 +63,18 @@ def make(args):
     working_dir = args.path  # 项目TOP路径
     IOC_name = args.IOC  # IOC名称
 
+    project_dir_path = os.path.join(working_dir, PROJECT_DIR_NAME)
     if IOC_name:
         for item in IOC_name:
-            logger.info(f'\tBuilding IOC: {item}.')
+            logger.info(f'\t编译IOC: {item}.')
             ioc_make(working_dir, item)
+            config_set(project_dir_path, item, 'status', 'Built')
     else:
         os.chdir(os.path.join(working_dir, PROJECT_DIR_NAME, IOC_DIR_NAME))
         for item in [ioc for ioc in os.listdir() if os.path.isdir(ioc)]:
-            logger.info(f'\tBuilding IOC: {item}.')
+            logger.info(f'\t编译IOC: {item}.')
             ioc_make(working_dir, item)
+            config_set(project_dir_path, item, 'status', 'Built')
 
 
 # remake: IOC重新编译
@@ -81,12 +84,12 @@ def remake(args):
 
     if IOC_name:
         for item in IOC_name:
-            logger.info(f'\tRebuilding IOC: {item}.')
+            logger.info(f'\t卸载并重新编译IOC: {item}.')
             ioc_remake(working_dir, item)
     else:
         os.chdir(os.path.join(working_dir, PROJECT_DIR_NAME, IOC_DIR_NAME))
         for item in [ioc for ioc in os.listdir() if os.path.isdir(ioc)]:
-            logger.info(f'\tRebuilding IOC: {item}.')
+            logger.info(f'\t卸载并重新编译IOC: {item}.')
             ioc_remake(working_dir, item)
 
 
@@ -128,7 +131,7 @@ def main():
     run_flag = True
     #
     if args.verbose:
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG)
     if args.path:
         if os.path.isabs(args.path):
             try_makedirs(args.path)

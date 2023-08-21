@@ -9,7 +9,7 @@ from ER_Funcs import add_lines, _get_top, try_makedirs
 
 
 def add_pva(working_dir, IOC_name, App_name):
-    logger.info(f'\tAdding PVA module for {IOC_name}/{App_name}.')
+    logger.debug(f'\tAdding PVA module for {IOC_name}/{App_name}.')
 
     # App/src/Makefile
     lines_to_add = [
@@ -27,7 +27,7 @@ def add_pva(working_dir, IOC_name, App_name):
 
 
 def add_caPutLog(working_dir, IOC_name, App_name):
-    logger.info(f'\tAdding caPutLog module for {IOC_name}/{App_name}.')
+    logger.debug(f'\tAdding caPutLog module for {IOC_name}/{App_name}.')
 
     # caPutLog .acf
     template_path = os.path.join(_get_top(), 'template', 'IOC', 'template.acf')
@@ -69,7 +69,7 @@ def add_caPutLog(working_dir, IOC_name, App_name):
 
 
 def add_autosave(working_dir, IOC_name, App_name):
-    logger.info(f'\tAdding autosave module for {IOC_name}/{App_name}.')
+    logger.debug(f'\tAdding autosave module for {IOC_name}/{App_name}.')
 
     # log dir
     log_dir_path = os.path.join(working_dir, PROJECT_DIR_NAME, LOG_DIR_NAME, 'autosave', IOC_name, f'ioc{App_name}')
@@ -122,7 +122,7 @@ def add_autosave(working_dir, IOC_name, App_name):
 
 
 def add_devIocStats(working_dir, IOC_name, App_name, mode: str):
-    logger.info(f'\tAdding devIocStats module(mode:{mode}) for {IOC_name}/{App_name}.')
+    logger.debug(f'\tAdding devIocStats module(mode:{mode}) for {IOC_name}/{App_name}.')
 
     # App/src/Makefile
     file_path = os.path.join(working_dir, PROJECT_DIR_NAME, IOC_DIR_NAME, IOC_name, f'{App_name}App', 'src', 'Makefile')
