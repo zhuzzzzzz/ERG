@@ -3,7 +3,7 @@ import shutil
 
 from ER_Funcs import try_makedirs, _get_top, add_lines
 from ER_Settings import logger, PROJECT_DIR_NAME, IOC_DIR_NAME, LOG_DIR_NAME, MODULE_PATH, DB_FILE_SUFFIX, \
-    ST_CMD_AT_DBLOAD_HOOK
+    PHOEBUS_PATH, PHOEBUS_SERVER_PORT
 
 
 def ioc_make(working_dir, IOC_name):
@@ -67,7 +67,18 @@ def project_scripts_generator(working_dir):
         f'top_path=$script_dir/../{IOC_DIR_NAME}\n',
     ]
     add_lines(file_path, '# top path\n', lines_to_add)
-    #
+
+    # run_project_opi.sh
+    template_path = os.path.join(_get_top(), 'template', 'scripts', 'open_project_opi.sh')
+    file_path = os.path.join(working_dir, PROJECT_DIR_NAME, 'scripts', 'open_project_opi.sh')
+    shutil.copy(template_path, file_path)
+    lines_to_add = [
+        f'#Phoebus path\n'
+        f'PHOEBUS_PATH={PHOEBUS_PATH}\n'
+        f'#Server port\n'
+        f'SERVER_PORT={PHOEBUS_SERVER_PORT}\n'
+    ]
+    add_lines(file_path, '# execute command\n', lines_to_add)
 
 
 # 根据Db文件夹中的文件更新Makefile
